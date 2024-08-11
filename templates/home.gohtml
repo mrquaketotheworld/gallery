@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title></title>
-</head>
-
-<body>
+{{define "page"}}
   Home
   {{if eq .Name "bob"}}
-  Hello bobby!
+    Hello bobby!
   {{else}}
-  Hello user!
+    Hello user!
   {{end}}
-</body>
-
-</html>
+{{end}}
