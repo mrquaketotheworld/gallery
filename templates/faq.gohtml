@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title></title>
 </head>
+
 <body>
-  FAQ
+  <ul>
+    {{range .}}
+    <li>{{template "qa" .}}</li>
+    {{end}}
+  </ul>
 </body>
+
 </html>
+
+{{define "qa"}}
+<h2>{{.Question}}</h2>
+<p>{{.Answer}}</p>
+{{end}}
