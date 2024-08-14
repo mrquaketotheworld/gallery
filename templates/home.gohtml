@@ -1,8 +1,3 @@
-{{define "page"}}
-  Home
-  {{if eq .Name "bob"}}
-    Hello bobby!
-  {{else}}
-    Hello user!
-  {{end}}
-{{end}}
+{{template "header" .}}
+Home
+{{template "footer" .}}
