@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/mrquaketotheworld/gallery/controllers"
+	"github.com/mrquaketotheworld/gallery/models"
 	"github.com/mrquaketotheworld/gallery/templates"
 	"github.com/mrquaketotheworld/gallery/views"
 )
@@ -17,7 +18,19 @@ func main() {
 	r.Get("/contact", controllers.StaticHandler(views.Must(views.ParseFS(templates.FS, "contact.gohtml", "tailwind.gohtml"))))
 	r.Get("/faq", controllers.FAQ(views.Must(views.ParseFS(templates.FS, "faq.gohtml", "tailwind.gohtml"))))
 
-	usersC := controllers.Users{}
+	cfg := models.DefaultPostgresConfig()
+	db, err := models.Open(cfg)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	userService := models.UserService{
+		DB: db,
+	}
+	usersC := controllers.Users{
+		UserService: &userService,
+	}
 	usersC.Templates.New = views.Must(views.ParseFS(templates.FS, "signup.gohtml", "tailwind.gohtml"))
 	r.Get("/signup", usersC.New)
 	r.Post("/users", usersC.Create)
@@ -26,8 +39,10 @@ func main() {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
 	fmt.Println("Starting the server at 3000")
-	err := http.ListenAndServe(":3000", r)
+	err = http.ListenAndServe(":3000", r)
 	if err != nil {
 		log.Printf("Error start server: %v", err)
 	}
 }
+
+// docker compose exec -it db psql -U baloo -d lenslocked
