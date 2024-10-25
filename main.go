@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/csrf"
 	"github.com/mrquaketotheworld/gallery/controllers"
 	"github.com/mrquaketotheworld/gallery/models"
 	"github.com/mrquaketotheworld/gallery/templates"
@@ -36,12 +37,16 @@ func main() {
 	r.Get("/signup", usersC.New)
 	r.Post("/users", usersC.Create)
 	r.Get("/signin", usersC.SignIn)
+	r.Post("/signin", usersC.ProcessSignIn)
+	r.Get("/users/me", usersC.CurrentUser)
 
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Page not found", http.StatusNotFound)
 	})
 	fmt.Println("Starting the server at 3000")
-	err = http.ListenAndServe(":3000", r)
+	csrfKey := "afksdfksfjksdfjskdfjkdsfdsadfdsf"
+	csrfMw := csrf.Protect([]byte(csrfKey), csrf.Secure(false))
+	err = http.ListenAndServe(":3000", csrfMw(r))
 	if err != nil {
 		log.Printf("Error start server: %v", err)
 	}
