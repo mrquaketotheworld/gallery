@@ -12,7 +12,8 @@ type Users struct {
 		New    Template
 		SignIn Template
 	}
-	UserService *models.UserService
+	UserService    *models.UserService
+	SessionService *models.SessionService
 }
 
 func (u Users) New(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +33,17 @@ func (u Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
+	session, err := u.SessionService.Create()
+	if err != nil {
+		fmt.Println(err)
+		http.Redirect(w, r, "/signin", http.StatusFound)
+	}
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    session.Token,
+		Path:     "/",
+		HttpOnly: true,
+	}
 	fmt.Fprintf(w, "User created: %+v", user)
 }
 
@@ -45,7 +57,7 @@ func (u Users) SignIn(w http.ResponseWriter, r *http.Request) {
 
 func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 	var data struct {
-		Email string
+		Email    string
 		Password string
 	}
 	data.Email = r.FormValue("email")
@@ -57,9 +69,9 @@ func (u Users) ProcessSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cookie := http.Cookie{
-		Name: "email",
+		Name:  "email",
 		Value: user.Email,
-		Path: "/",
+		Path:  "/",
 	}
 	http.SetCookie(w, &cookie)
 	fmt.Fprintf(w, "User authenticated: %+v", user)
