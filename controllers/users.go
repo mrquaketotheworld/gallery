@@ -102,5 +102,6 @@ func (u Users) ProcessSignOut(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
+	deleteCookie(w, CookieSession)
 	http.Redirect(w, r, "/signin", http.StatusFound)
 }
